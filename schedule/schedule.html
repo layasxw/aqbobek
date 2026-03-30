@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Расписание - Aqbobek</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+    th, td { border: 1px solid #aaa; padding: 5px; text-align: center; }
+    th { background-color: #f0f0f0; }
+    select { margin-right: 10px; padding: 5px; }
+  </style>
+</head>
+<body>
+
+<h2>Расписание школы</h2>
+
+<div>
+  <label for="filter-type">Фильтр по: </label>
+  <select id="filter-type">
+    <option value="class">Класс</option>
+    <option value="teacher">Учитель</option>
+    <option value="room">Кабинет</option>
+  </select>
+
+  <select id="filter-value"></select>
+</div>
+
+<div id="schedule-container"></div>
+
+<script src="schedule2.js"></script>
+
+</body>
+</html>

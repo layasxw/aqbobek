@@ -1,0 +1,50 @@
+{
+  "classes": [
+    {"id":1,"name":"7А"},
+    {"id":2,"name":"7Б"},
+    {"id":3,"name":"7В"}
+  ],
+  "subjects": [
+    {"id":1,"name":"Математика","requiredRoomType":"standard"},
+    {"id":2,"name":"Физика","requiredRoomType":"lab"},
+    {"id":3,"name":"Английский","requiredRoomType":"standard"},
+    {"id":4,"name":"Информатика","requiredRoomType":"standard"},
+    {"id":5,"name":"Химия","requiredRoomType":"lab"},
+    {"id":6,"name":"История","requiredRoomType":"standard"}
+  ],
+  "rooms": [
+    {"id":1,"name":"Каб.101","type":"standard"},
+    {"id":2,"name":"Каб.102","type":"standard"},
+    {"id":3,"name":"Каб.103","type":"standard"},
+    {"id":4,"name":"Лаб.201","type":"lab"},
+    {"id":5,"name":"Лаб.202","type":"lab"},
+    {"id":6,"name":"Спортзал","type":"gym"}
+  ],
+  "timeslots": [
+    {"id":1,"day":"Mon","period":1},{"id":2,"day":"Mon","period":2},{"id":3,"day":"Mon","period":3},{"id":4,"day":"Mon","period":4},{"id":5,"day":"Mon","period":5},{"id":6,"day":"Mon","period":6},{"id":7,"day":"Mon","period":7},
+    {"id":8,"day":"Tue","period":1},{"id":9,"day":"Tue","period":2},{"id":10,"day":"Tue","period":3},{"id":11,"day":"Tue","period":4},{"id":12,"day":"Tue","period":5},{"id":13,"day":"Tue","period":6},{"id":14,"day":"Tue","period":7},
+    {"id":15,"day":"Wed","period":1},{"id":16,"day":"Wed","period":2},{"id":17,"day":"Wed","period":3},{"id":18,"day":"Wed","period":4},{"id":19,"day":"Wed","period":5},{"id":20,"day":"Wed","period":6},{"id":21,"day":"Wed","period":7},
+    {"id":22,"day":"Thu","period":1},{"id":23,"day":"Thu","period":2},{"id":24,"day":"Thu","period":3},{"id":25,"day":"Thu","period":4},{"id":26,"day":"Thu","period":5},{"id":27,"day":"Thu","period":6},{"id":28,"day":"Thu","period":7},
+    {"id":29,"day":"Fri","period":1},{"id":30,"day":"Fri","period":2},{"id":31,"day":"Fri","period":3},{"id":32,"day":"Fri","period":4},{"id":33,"day":"Fri","period":5},{"id":34,"day":"Fri","period":6},{"id":35,"day":"Fri","period":7}
+  ],
+  "activities": [
+    {"id":1,"subject":"Математика","teacher":"Айгуль Бекова","teacher_id":8,"classGroup":"7А","class_id":1,"duration":1,"requiredRoomType":"standard","priority":1},
+    {"id":2,"subject":"Математика","teacher":"Айгуль Бекова","teacher_id":8,"classGroup":"7Б","class_id":2,"duration":1,"requiredRoomType":"standard","priority":1},
+    {"id":3,"subject":"Математика","teacher":"Айгуль Бекова","teacher_id":8,"classGroup":"7В","class_id":3,"duration":1,"requiredRoomType":"standard","priority":1},
+    {"id":4,"subject":"Физика","teacher":"Нурлан Асқаров","teacher_id":5,"classGroup":"7А","class_id":1,"duration":1,"requiredRoomType":"lab","priority":1},
+    {"id":5,"subject":"Физика","teacher":"Нурлан Асқаров","teacher_id":5,"classGroup":"7Б","class_id":2,"duration":1,"requiredRoomType":"lab","priority":1},
+    {"id":6,"subject":"Физика","teacher":"Нурлан Асқаров","teacher_id":5,"classGroup":"7В","class_id":3,"duration":1,"requiredRoomType":"lab","priority":1},
+    {"id":7,"subject":"Английский","teacher":"Дамир Сейтов","teacher_id":9,"classGroup":"7А","class_id":1,"duration":1,"requiredRoomType":"standard","priority":1},
+    {"id":8,"subject":"Английский","teacher":"Дамир Сейтов","teacher_id":9,"classGroup":"7Б","class_id":2,"duration":1,"requiredRoomType":"standard","priority":1},
+    {"id":9,"subject":"Английский","teacher":"Дамир Сейтов","teacher_id":9,"classGroup":"7В","class_id":3,"duration":1,"requiredRoomType":"standard","priority":1},
+    {"id":10,"subject":"Информатика","teacher":"Жанна Омарова","teacher_id":10,"classGroup":"7А","class_id":1,"duration":1,"requiredRoomType":"standard","priority":1},
+    {"id":11,"subject":"Информатика","teacher":"Жанна Омарова","teacher_id":10,"classGroup":"7Б","class_id":2,"duration":1,"requiredRoomType":"standard","priority":1},
+    {"id":12,"subject":"Информатика","teacher":"Жанна Омарова","teacher_id":10,"classGroup":"7В","class_id":3,"duration":1,"requiredRoomType":"standard","priority":1},
+    {"id":13,"subject":"Химия","teacher":"Болат Нұрмағамбетов","teacher_id":11,"classGroup":"7А","class_id":1,"duration":1,"requiredRoomType":"lab","priority":1},
+    {"id":14,"subject":"Химия","teacher":"Болат Нұрмағамбетов","teacher_id":11,"classGroup":"7Б","class_id":2,"duration":1,"requiredRoomType":"lab","priority":1},
+    {"id":15,"subject":"Химия","teacher":"Болат Нұрмағамбетов","teacher_id":11,"classGroup":"7В","class_id":3,"duration":1,"requiredRoomType":"lab","priority":1},
+    {"id":16,"subject":"История","teacher":"Гүлнар Қасымова","teacher_id":12,"classGroup":"7А","class_id":1,"duration":1,"requiredRoomType":"standard","priority":1},
+    {"id":17,"subject":"История","teacher":"Гүлнар Қасымова","teacher_id":12,"classGroup":"7Б","class_id":2,"duration":1,"requiredRoomType":"standard","priority":1},
+    {"id":18,"subject":"История","teacher":"Гүлнар Қасымова","teacher_id":12,"classGroup":"7В","class_id":3,"duration":1,"requiredRoomType":"standard","priority":1}
+  ]
+}
