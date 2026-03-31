@@ -28,6 +28,6 @@ function loadEnv($path) {
 }
 
 loadEnv(__DIR__ . '/.env');
-$url = 'https://api.groq.com/openai/v1/chat/completions';
+$url = 'https:api.groq.com/openai/v1/chat/completions';
 
 ?>

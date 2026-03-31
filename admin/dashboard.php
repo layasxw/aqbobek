@@ -8,13 +8,11 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// --- СТАТИСТИКА ---
 $total_students = $conn->query("SELECT COUNT(*) as cnt FROM users WHERE role='student'")->fetch_assoc()['cnt'];
 $total_teachers = $conn->query("SELECT COUNT(*) as cnt FROM users WHERE role='teacher'")->fetch_assoc()['cnt'];
 $total_classes  = $conn->query("SELECT COUNT(*) as cnt FROM classes")->fetch_assoc()['cnt'];
 $school_avg     = $conn->query("SELECT ROUND(AVG(score),1) as avg FROM grades")->fetch_assoc()['avg'] ?? 0;
 
-// --- ВСЕ УЧЕНИКИ с avg ---
 $students = $conn->query("
     SELECT u.id, u.name, c.name as class_name, ROUND(AVG(g.score),1) as avg_score
     FROM users u
@@ -27,7 +25,6 @@ $students = $conn->query("
 
 $total_risk = count(array_filter($students, fn($s) => ($s['avg_score'] ?? 0) < 60));
 
-// --- СРЕДНИЙ БАЛЛ ПО ПРЕДМЕТАМ ---
 $subject_avgs = $conn->query("
     SELECT s.name as subject, ROUND(AVG(g.score),1) as avg_score
     FROM grades g
@@ -36,7 +33,6 @@ $subject_avgs = $conn->query("
     ORDER BY avg_score DESC
 ")->fetch_all(MYSQLI_ASSOC);
 
-// --- СРЕДНИЙ БАЛЛ ПО КЛАССАМ ---
 $class_avgs = $conn->query("
     SELECT c.name as class_name, ROUND(AVG(g.score),1) as avg_score, COUNT(DISTINCT u.id) as cnt
     FROM classes c
@@ -47,7 +43,6 @@ $class_avgs = $conn->query("
     ORDER BY c.name ASC
 ")->fetch_all(MYSQLI_ASSOC);
 
-// --- ВСЕ ПОЛЬЗОВАТЕЛИ ---
 $all_users = $conn->query("
     SELECT u.id, u.name, u.email, u.role, c.name as class_name, u.created_at
     FROM users u
@@ -55,7 +50,6 @@ $all_users = $conn->query("
     ORDER BY u.role, u.name
 ")->fetch_all(MYSQLI_ASSOC);
 
-// --- ДОСТИЖЕНИЯ ---
 $achievements = $conn->query("
     SELECT a.title, a.date, u.name as student_name, c.name as class_name
     FROM achievements a
@@ -64,20 +58,17 @@ $achievements = $conn->query("
     ORDER BY a.date DESC LIMIT 10
 ")->fetch_all(MYSQLI_ASSOC);
 
-// --- СОБЫТИЯ ---
 $events = $conn->query("
     SELECT id, title, description, event_date FROM events
     WHERE event_date >= CURDATE()
     ORDER BY event_date ASC LIMIT 6
 ")->fetch_all(MYSQLI_ASSOC);
 
-// --- НОВОСТИ ---
 $news = $conn->query("
     SELECT id, title, body, created_at FROM news
     ORDER BY created_at DESC LIMIT 5
 ")->fetch_all(MYSQLI_ASSOC);
 
-// --- ДОБАВИТЬ СОБЫТИЕ ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_event'])) {
     $t = $_POST['event_title'];
     $d = $_POST['event_desc'];
@@ -89,7 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_event'])) {
     header("Location: dashboard.php"); exit();
 }
 
-// --- ДОБАВИТЬ НОВОСТЬ ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_news'])) {
     $t = $_POST['news_title'];
     $b = $_POST['news_body'];
@@ -100,14 +90,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_news'])) {
     header("Location: dashboard.php"); exit();
 }
 
-// --- УДАЛИТЬ НОВОСТЬ ---
 if (isset($_GET['delete_news'])) {
     $nid = (int)$_GET['delete_news'];
     $conn->query("DELETE FROM news WHERE id=$nid");
     header("Location: dashboard.php"); exit();
 }
 
-// --- УДАЛИТЬ СОБЫТИЕ ---
 if (isset($_GET['delete_event'])) {
     $eid = (int)$_GET['delete_event'];
     $conn->query("DELETE FROM events WHERE id=$eid");
@@ -120,8 +108,8 @@ if (isset($_GET['delete_event'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aqbobek | Администратор</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https:cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https:fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -304,7 +292,6 @@ if (isset($_GET['delete_event'])) {
             </div>
         </section>
 
-        <!-- ПОЛЬЗОВАТЕЛИ -->
         <section id="section-users" class="content-section">
             <div class="glass-card full-width">
                 <h3>👥 Все пользователи</h3>
@@ -342,7 +329,6 @@ if (isset($_GET['delete_event'])) {
             </div>
         </section>
 
-        <!-- ДОСТИЖЕНИЯ -->
         <section id="section-achievements" class="content-section">
             <div class="glass-card full-width">
                 <h3>🏆 Достижения учеников</h3>
@@ -362,7 +348,6 @@ if (isset($_GET['delete_event'])) {
             </div>
         </section>
 
-        <!-- СОБЫТИЯ -->
         <section id="section-events" class="content-section">
             <div class="sub-navigation">
                 <button class="sub-nav-btn active" data-sub="sub-events-list">Список событий</button>
@@ -418,7 +403,6 @@ if (isset($_GET['delete_event'])) {
             </div>
         </section>
 
-        <!-- НОВОСТИ -->
         <section id="section-news" class="content-section">
             <div class="sub-navigation">
                 <button class="sub-nav-btn active" data-sub="sub-news-list">Лента новостей</button>

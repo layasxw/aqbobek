@@ -2,7 +2,6 @@
 require_once '../config/db.php';
 
 function aq_load_schedule_data($conn): array {
-    // Учителя из users где role='teacher'
     $teachers = $conn->query("
         SELECT u.id, u.name, s.name as subject, s.id as subject_id
         FROM users u
@@ -10,21 +9,16 @@ function aq_load_schedule_data($conn): array {
         WHERE u.role = 'teacher'
     ")->fetch_all(MYSQLI_ASSOC);
 
-    // Классы
     $classes = $conn->query("SELECT id, name FROM classes")->fetch_all(MYSQLI_ASSOC);
 
-    // Subjects
     $subjects = $conn->query("SELECT id, name FROM subjects")->fetch_all(MYSQLI_ASSOC);
 
-    // Кабинеты — хардкод, их в БД всё равно нет
     $rooms = [
         ['id'=>1,'name'=>'Каб.101','type'=>'standard'],
         ['id'=>2,'name'=>'Лаб.201','type'=>'lab'],
         ['id'=>3,'name'=>'Спортзал','type'=>'gym'],
     ];
 
-    // Activities — каждый учитель × его класс(ы)
-    // Пример: каждый учитель ведёт у каждого класса
     $activities = [];
     $i = 1;
     foreach ($teachers as $t) {
@@ -51,7 +45,6 @@ function aq_load_schedule_data($conn): array {
         }
     }
 
-    // Таймслоты
     $timeslots = [];
     $tid = 1;
     foreach (['Mon','Tue','Wed','Thu','Fri'] as $day) {

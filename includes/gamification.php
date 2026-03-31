@@ -1,19 +1,14 @@
 <?php
-/**
- * gamification.php
- * Подключается через require_once в student/dashboard.php
- * Возвращает XP, уровень, цели и проверяет достижения
- */
+require_once __DIR__ . '/../config/db.php';
+
 
 function aq_get_gamification(mysqli $conn, int $student_id): array {
 
-    // --- XP = сумма всех баллов ---
     $stmt = $conn->prepare("SELECT COALESCE(SUM(score),0) as xp FROM grades WHERE student_id=?");
     $stmt->bind_param("i", $student_id);
     $stmt->execute();
     $xp = (int)$stmt->get_result()->fetch_assoc()['xp'];
 
-    // --- Уровень ---
     if      ($xp >= 2000) { $level = 'Мастер';    $level_icon = '🔥'; $next_xp = null;  }
     elseif  ($xp >= 1200) { $level = 'Про';       $level_icon = '⚡'; $next_xp = 2000;  }
     elseif  ($xp >= 600)  { $level = 'Ученик';    $level_icon = '📚'; $next_xp = 1200;  }
@@ -29,7 +24,6 @@ function aq_get_gamification(mysqli $conn, int $student_id): array {
         $progress_pct = 100;
     }
 
-    // --- Цели ---
     $stmt2 = $conn->prepare("
         SELECT g.id, g.subject_id, g.target_score, g.deadline, g.status, s.name as subject_name,
                ROUND(AVG(gr.score),1) as current_avg
@@ -44,16 +38,14 @@ function aq_get_gamification(mysqli $conn, int $student_id): array {
     $stmt2->execute();
     $goals = $stmt2->get_result()->fetch_all(MYSQLI_ASSOC);
 
-    // --- Автопроверка: достигнута ли цель? ---
     foreach ($goals as &$goal) {
         if ($goal['status'] === 'active' && $goal['current_avg'] >= $goal['target_score']) {
-            // Обновляем статус
+             Обновляем статус
             $upd = $conn->prepare("UPDATE goals SET status='done' WHERE id=?");
             $upd->bind_param("i", $goal['id']);
             $upd->execute();
             $goal['status'] = 'done';
 
-            // Проверяем: нет ли уже такой ачивки
             $chk = $conn->prepare("
                 SELECT id FROM achievements
                 WHERE student_id=? AND title=?
@@ -72,7 +64,6 @@ function aq_get_gamification(mysqli $conn, int $student_id): array {
             }
         }
 
-        // Провал: дедлайн прошёл, цель не достигнута
         if ($goal['status'] === 'active' && $goal['deadline'] && $goal['deadline'] < date('Y-m-d')) {
             $upd = $conn->prepare("UPDATE goals SET status='failed' WHERE id=?");
             $upd->bind_param("i", $goal['id']);
@@ -82,7 +73,6 @@ function aq_get_gamification(mysqli $conn, int $student_id): array {
     }
     unset($goal);
 
-    // --- Ачивки за оценки (автоматические) ---
     $auto_achivs = [
         ['title' => '💯 Первая сотня', 'condition' => fn($scores) => in_array(100, $scores)],
         ['title' => '🔥 5 оценок подряд выше 80', 'condition' => function($scores) {
@@ -120,13 +110,11 @@ function aq_get_gamification(mysqli $conn, int $student_id): array {
 function aq_handle_goal_form(mysqli $conn, int $student_id): void {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
 
-    // Добавить цель
     if (isset($_POST['add_goal'])) {
         $subject_id   = (int)$_POST['goal_subject'];
         $target_score = min(100, max(1, (int)$_POST['goal_target']));
         $deadline     = $_POST['goal_deadline'] ?? null;
 
-        // Не дублировать активную цель по тому же предмету
         $chk = $conn->prepare("
             SELECT id FROM goals WHERE student_id=? AND subject_id=? AND status='active'
         ");
@@ -145,7 +133,6 @@ function aq_handle_goal_form(mysqli $conn, int $student_id): void {
         exit();
     }
 
-    // Удалить цель
     if (isset($_POST['delete_goal'])) {
         $goal_id = (int)$_POST['delete_goal'];
         $del = $conn->prepare("DELETE FROM goals WHERE id=? AND student_id=?");

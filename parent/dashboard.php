@@ -10,7 +10,6 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'parent') {
 
 $parent_id = $_SESSION['id'];
 
-// ребёнок родителя
 $stmt = $conn->prepare("
     SELECT u.id, u.name, c.name as class_name
     FROM users u
@@ -28,7 +27,6 @@ if (!$child) {
 
 $child_id = $child['id'];
 
-// оценки по предметам
 $stmt2 = $conn->prepare("
     SELECT s.name as subject, AVG(g.score) as avg_score
     FROM grades g
@@ -40,7 +38,6 @@ $stmt2->bind_param("i", $child_id);
 $stmt2->execute();
 $subject_avgs = $stmt2->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// все оценки
 $stmt3 = $conn->prepare("
     SELECT g.score, g.grade_type, g.date, g.topic, s.name as subject
     FROM grades g
@@ -52,12 +49,11 @@ $stmt3->bind_param("i", $child_id);
 $stmt3->execute();
 $all_grades = $stmt3->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// общее среднее
 $total_avg = count($subject_avgs) > 0
     ? round(array_sum(array_column($subject_avgs, 'avg_score')) / count($subject_avgs), 1)
     : 0;
 
-// достижения
+ 
 $stmt4 = $conn->prepare("
     SELECT title, date FROM achievements
     WHERE student_id = ?
@@ -67,14 +63,14 @@ $stmt4->bind_param("i", $child_id);
 $stmt4->execute();
 $achievements = $stmt4->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// события
+ 
 $events = $conn->query("
     SELECT title, event_date FROM events
     WHERE event_date >= CURDATE()
     ORDER BY event_date ASC LIMIT 5
 ")->fetch_all(MYSQLI_ASSOC);
 
-// новости
+ 
 $news = $conn->query("
     SELECT title, body, created_at FROM news
     ORDER BY created_at DESC LIMIT 3
@@ -86,8 +82,8 @@ $news = $conn->query("
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aqbobek | Родитель</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https:cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https:fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -141,7 +137,6 @@ $news = $conn->query("
             <div class="date-now"><?= date('d F Y') ?></div>
         </header>
 
-        <!-- ДАШБОРД -->
         <section id="section-home" class="content-section active">
             <div class="glass-card full-width" style="margin-bottom:20px;">
                 <div style="display:flex; align-items:center; gap:20px;">
@@ -176,7 +171,6 @@ $news = $conn->query("
                 </div>
             </div>
 
-            <!-- новости -->
             <div class="glass-card full-width" style="margin-top:20px;">
                 <h3>📰 Новости школы</h3>
                 <?php foreach ($news as $n): ?>
@@ -198,7 +192,6 @@ $news = $conn->query("
             </div>
         </section>
 
-        <!-- ОЦЕНКИ -->
         <section id="section-grades" class="content-section">
             <div class="sub-navigation">
                 <button class="sub-nav-btn active" data-sub="sub-grades-avg">По предметам</button>
@@ -254,7 +247,6 @@ $news = $conn->query("
             </div>
         </section>
 
-        <!-- ДОСТИЖЕНИЯ -->
         <section id="section-achievements" class="content-section">
             <div class="glass-card full-width">
                 <h3>🏆 Достижения <?= htmlspecialchars($child['name']) ?></h3>
@@ -275,7 +267,6 @@ $news = $conn->query("
             </div>
         </section>
 
-        <!-- СОБЫТИЯ -->
         <section id="section-events" class="content-section">
             <div class="glass-card full-width">
                 <h3>📅 Ближайшие события</h3>
@@ -297,7 +288,6 @@ $news = $conn->query("
             </div>
         </section>
 
-        <!-- AI ВЫЖИМКА -->
         <section id="section-ai" class="content-section">
             <div class="glass-card full-width">
                 <h3>🤖 AI Выжимка за неделю</h3>
@@ -311,7 +301,6 @@ $news = $conn->query("
             </div>
         </section>
 
-        <!-- РАСПИСАНИЕ -->
         <section id="section-schedule" class="content-section">
             <div class="glass-card full-width">
                 <h3>📅 Расписание класса <?= htmlspecialchars($child['class_name']) ?></h3>

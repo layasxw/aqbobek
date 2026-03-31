@@ -7,7 +7,7 @@ require_once __DIR__ . '/../config.php';
 
 
 $apiKey = $_ENV['GROQ_API_KEY'] ?? getenv('GROQ_API_KEY');
-$url = 'https://api.groq.com/openai/v1/chat/completions';
+$url = 'https:api.groq.com/openai/v1/chat/completions';
 
 if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'student') {
     http_response_code(403);
@@ -23,7 +23,6 @@ if (!$subject_name) {
     exit();
 }
 
-// --- 1. Получаем subject_id ---
 $stmt = $conn->prepare("SELECT id FROM subjects WHERE name = ?");
 $stmt->bind_param("s", $subject_name);
 $stmt->execute();
@@ -35,7 +34,6 @@ if (!$subject) {
 }
 $subject_id = $subject['id'];
 
-// --- 2. Оценки по этому предмету ---
 $stmt2 = $conn->prepare("
     SELECT score, grade_type, topic, date
     FROM grades
@@ -51,16 +49,12 @@ if (count($grades) < 2) {
     exit();
 }
 
-// --- 3. СВОЙ АЛГОРИТМ АНАЛИТИКИ ---
 
 $scores = array_column($grades, 'score');
 $n = count($scores);
 
-// Средний балл
 $avg = array_sum($scores) / $n;
 
-// Линейная регрессия (метод наименьших квадратов)
-// y = a + b*x, где x — индекс оценки (0,1,2,...), y — балл
 $sum_x = 0; $sum_y = 0; $sum_xy = 0; $sum_x2 = 0;
 for ($i = 0; $i < $n; $i++) {
     $sum_x  += $i;
@@ -71,30 +65,24 @@ for ($i = 0; $i < $n; $i++) {
 $denom = $n * $sum_x2 - $sum_x * $sum_x;
 $slope = $denom != 0 ? ($n * $sum_xy - $sum_x * $sum_y) / $denom : 0;
 
-// Предсказанный балл для следующей оценки (индекс $n)
 $predicted_raw = $avg + $slope * ($n - ($n - 1) / 2);
 $predicted = max(0, min(100, round($predicted_raw)));
 
-// Тренд
 if ($slope > 1.5)       $trend_text = 'уверенно растёт';
 elseif ($slope > 0.3)   $trend_text = 'слегка растёт';
 elseif ($slope < -1.5)  $trend_text = 'заметно падает';
 elseif ($slope < -0.3)  $trend_text = 'слегка падает';
 else                    $trend_text = 'стабильна';
 
-// Вероятность провала СОЧ (провал = меньше 50 баллов)
-// Используем стандартное отклонение + тренд для оценки вероятности
 $variance = 0;
 foreach ($scores as $s) {
     $variance += ($s - $avg) ** 2;
 }
 $std_dev = $n > 1 ? sqrt($variance / ($n - 1)) : 10;
 
-// z-score для порога 50
 $z = $std_dev > 0 ? ($predicted - 50) / $std_dev : 3;
 $fail_prob = round((1 - normalCDF($z)) * 100);
 $fail_prob = max(0, min(99, $fail_prob));
-// Простая аппроксимация CDF нормального распределения
 function normalCDF(float $z): float {
     $t = 1.0 / (1.0 + 0.2316419 * abs($z));
     $d = 0.3989423 * exp(-$z * $z / 2);
@@ -103,7 +91,6 @@ function normalCDF(float $z): float {
 }
 
 
-// Слабые темы (score < 60)
 $weak_topics = [];
 foreach ($grades as $g) {
     if ($g['score'] < 60 && $g['topic']) {
@@ -111,13 +98,11 @@ foreach ($grades as $g) {
     }
 }
 
-// СОЧ оценки отдельно
 $soch_grades = array_values(array_filter($grades, fn($g) => $g['grade_type'] === 'СОЧ'));
 $soch_avg = count($soch_grades) > 0
     ? round(array_sum(array_column($soch_grades, 'score')) / count($soch_grades), 1)
     : null;
 
-// --- 4. Промпт для LLM ---
 $weak_list = empty($weak_topics) ? 'нет явных пробелов' : implode(', ', $weak_topics);
 $soch_info = $soch_avg !== null ? "Средний балл на СОЧ: $soch_avg" : "Оценок СОЧ пока нет";
 $scores_str = implode(', ', $scores);
@@ -140,7 +125,6 @@ $prompt = "Ты AI-наставник школьника. Проанализир
 
 Тон: честный, как старший товарищ. Максимум 6 предложений. Ответ на русском.";
 
-// --- 5. Запрос к Groq ---
 $body = json_encode([
     'model' => 'llama-3.3-70b-versatile',
     'messages' => [
@@ -165,7 +149,6 @@ curl_close($ch);
 $result = json_decode($response, true);
 $prediction = $result['choices'][0]['message']['content'] ?? 'Не удалось получить анализ.';
 
-// --- 6. Возвращаем и данные алгоритма, и текст LLM ---
 header('Content-Type: application/json');
 echo json_encode([
     'prediction'  => $prediction,

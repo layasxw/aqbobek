@@ -78,7 +78,7 @@ function generateSchedule(activities, timeslots, rooms) {
     }
 
     if (bestSlot && bestRoom) {
-      // ставим активность в расписание
+       ставим активность в расписание
       scheduleEntries.push({
         id: scheduleEntries.length + 1,
         activityId: activity.id,
@@ -113,7 +113,7 @@ async function getLLMSuggestions(activities, timeslots, rooms, schedule, conditi
   [{"activityId":1, "timeSlotId":3, "roomId":2}, ...]
   `;
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch("https:api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

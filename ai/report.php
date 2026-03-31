@@ -13,7 +13,6 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'teacher') {
 
 $teacher_id = $_SESSION['id'];
 
-// 1. Предмет учителя
 $stmt = $conn->prepare("
     SELECT s.id, s.name 
     FROM users u 
@@ -29,7 +28,6 @@ if (!$subject) {
     exit();
 }
 
-// 2. Все оценки студентов из классов этого учителя
 $stmt2 = $conn->prepare("
     SELECT u.name as student_name, g.score, g.date
     FROM grades g
@@ -47,13 +45,9 @@ if (empty($grades)) {
     exit();
 }
 
-// --- СВОЯ АНАЛИТИКА ---
-
-// Средний балл
 $scores = array_column($grades, 'score');
 $avg = round(array_sum($scores) / count($scores), 1);
 
-// Зона риска — студенты со средним < 60
 $studentScores = [];
 foreach ($grades as $g) {
     $studentScores[$g['student_name']][] = $g['score'];
@@ -67,14 +61,12 @@ foreach ($studentScores as $name => $s) {
 }
 $riskCount = count($riskStudents);
 
-// Тренд — сравниваем первую половину оценок со второй
 $half = (int)(count($scores) / 2);
 $firstHalf = $half > 0 ? round(array_sum(array_slice($scores, 0, $half)) / $half, 1) : $avg;
 $secondHalf = $half > 0 ? round(array_sum(array_slice($scores, $half)) / ($half ?: 1), 1) : $avg;
 $trend = $secondHalf - $firstHalf;
 $trendText = $trend > 2 ? 'растёт' : ($trend < -2 ? 'падает' : 'стабильна');
 
-// --- ПРОМПТ ДЛЯ GEMINI ---
 $riskList = empty($riskStudents) ? 'нет' : implode(', ', $riskStudents);
 $prompt = "Ты школьный аналитик. Напиши короткий отчёт об успеваемости класса по предмету «{$subject['name']}».
 Данные:
@@ -85,7 +77,6 @@ $prompt = "Ты школьный аналитик. Напиши короткий
 
 Отчёт должен быть на русском, 3-4 предложения, конкретный, без воды. В конце дай 1-2 рекомендации учителю.";
 
-// --- ЗАПРОС К GROQ ---
 
 
 $body = json_encode([

@@ -99,8 +99,8 @@ foreach ($leaderboard as $i => $row) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aqbobek | Ученик</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https:cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https:fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
     <style>
     * {
@@ -455,7 +455,7 @@ foreach ($leaderboard as $i => $row) {
                             ['icon'=>'📈','name'=>'Отличник','desc'=>'Средний балл выше 85'],
                             ['icon'=>'🎯','name'=>'Цель достигнута','desc'=>'Закрыть учебную цель'],
                         ];
-                        // Полученные ачивки
+                         Полученные ачивки
                         $stmt_ach = $conn->prepare("SELECT title FROM achievements WHERE student_id=?");
                         $stmt_ach->bind_param("i", $id);
                         $stmt_ach->execute();
@@ -712,7 +712,7 @@ foreach ($leaderboard as $i => $row) {
  
         nodePositions = layout(nodes);
  
-        // Рёбра
+         Рёбра
         edges.forEach(e => {
             const from = nodePositions[e.from];
             const to   = nodePositions[e.to];
@@ -720,7 +720,7 @@ foreach ($leaderboard as $i => $row) {
             ctx.beginPath();
             ctx.moveTo(from.x, from.y);
  
-            // Кривая Безье
+             Кривая Безье
             const cpx = (from.x + to.x) / 2;
             const cpy = (from.y + to.y) / 2 - 40;
             ctx.quadraticCurveTo(cpx, cpy, to.x, to.y);
@@ -731,7 +731,7 @@ foreach ($leaderboard as $i => $row) {
             ctx.stroke();
             ctx.setLineDash([]);
  
-            // Стрелка
+             Стрелка
             const angle = Math.atan2(to.y - cpy, to.x - cpx);
             const arrowLen = 12;
             ctx.beginPath();
@@ -749,13 +749,13 @@ foreach ($leaderboard as $i => $row) {
             ctx.fill();
         });
  
-        // Узлы
+         Узлы
         nodes.forEach(node => {
             const pos = nodePositions[node.id];
             const col = COLORS[node.level];
-            const R   = 42 + (node.avg / 100) * 14; // размер = балл
+            const R   = 42 + (node.avg / 100) * 14;  размер = балл
  
-            // Свечение
+             Свечение
             const grd = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, R + 16);
             grd.addColorStop(0, col.glow);
             grd.addColorStop(1, 'transparent');
@@ -764,7 +764,7 @@ foreach ($leaderboard as $i => $row) {
             ctx.fillStyle = grd;
             ctx.fill();
  
-            // Круг
+             Круг
             ctx.beginPath();
             ctx.arc(pos.x, pos.y, R, 0, Math.PI * 2);
             ctx.fillStyle = col.fill;
@@ -773,14 +773,14 @@ foreach ($leaderboard as $i => $row) {
             ctx.lineWidth = 2;
             ctx.stroke();
  
-            // Балл
+             Балл
             ctx.fillStyle = col.text;
             ctx.font = 'bold 16px Inter, sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(node.avg, pos.x, pos.y - 6);
  
-            // Тема под кругом
+             Тема под кругом
             ctx.fillStyle = '#fff';
             ctx.font = '12px Inter, sans-serif';
             ctx.textBaseline = 'top';

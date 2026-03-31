@@ -4,7 +4,6 @@ from openai import OpenAI
 
 app = Flask(__name__)
 
-# --- DB connection ---
 db = mysql.connector.connect(
     host="localhost",
     user="root",
@@ -12,10 +11,9 @@ db = mysql.connector.connect(
     database="aqbobek"
 )
 
-# --- Groq client ---
 client = OpenAI(
     api_key="",
-    base_url="https://api.groq.com/openai/v1"
+    base_url="https:api.groq.com/openai/v1"
 )
 
 @app.route('/advice/<int:student_id>/<int:subject_id>')
@@ -38,8 +36,6 @@ def advice(student_id, subject_id):
     avg = sum(grades) / len(grades)
     min_score = min(grades)
 
-    # grades[0] = самая новая, grades[-1] = самая старая
-    # Если > 0, значит улучшение; если < 0, значит ухудшение
     trend = grades[0] - grades[-1]
 
     if trend > 0:

@@ -10,7 +10,6 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'student') {
 
 $student_id = $_SESSION['id'];
 
-// Оценки ученика по темам
 $stmt = $conn->prepare("
     SELECT g.topic, g.score, g.subject_id, s.name as subject_name
     FROM grades g
@@ -22,7 +21,6 @@ $stmt->bind_param("i", $student_id);
 $stmt->execute();
 $grades = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// Средний балл по каждой теме
 $topic_scores = [];
 foreach ($grades as $g) {
     $key = $g['subject_id'] . '||' . $g['topic'];
@@ -51,37 +49,34 @@ foreach ($topic_scores as $key => $data) {
     ];
 }
 
-// Зависимости между темами (хардкод по предметам)
 $topic_deps = [
-    // Математика (subject_id=1)
+     Математика (subject_id=1)
     'Квадратные уравнения' => ['Тригонометрия'],
     'Тригонометрия'        => ['Производная'],
     'Производная'          => [],
 
-    // Физика (subject_id=2)
+     Физика (subject_id=2)
     'Термодинамика'        => ['Идеальный газ'],
     'Идеальный газ'        => ['Молекулярная физика'],
     'Молекулярная физика'  => [],
 
-    // Английский (subject_id=3)
+     Английский (subject_id=3)
     'Reading'  => ['Writing'],
     'Writing'  => ['Grammar'],
     'Grammar'  => [],
 
-    // Информатика (subject_id=4)
+     Информатика (subject_id=4)
     'Алгоритмы'  => ['Базы данных'],
     'Базы данных' => ['ООП'],
     'ООП'        => [],
 ];
 
-// Строим рёбра только между существующими узлами
 $node_ids = array_column($nodes, 'id', 'topic');
 $edges = [];
 $seen_edges = [];
 foreach ($nodes as $n) {
     $deps = $topic_deps[$n['topic']] ?? [];
     foreach ($deps as $dep_topic) {
-        // Ищем зависимость в том же предмете
         $dep_key = $n['subject_id'] . '||' . $dep_topic;
         if (isset($topic_scores[$dep_key])) {
             $edge_key = $n['id'] . '->' . $dep_key;

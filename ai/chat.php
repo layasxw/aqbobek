@@ -7,7 +7,7 @@ require_once __DIR__ . '/../config.php';
 
 $apiKey = $_ENV['GROQ_API_KEY'] ?? getenv('GROQ_API_KEY');
 
-$url = 'https://api.groq.com/openai/v1/chat/completions';
+$url = 'https:api.groq.com/openai/v1/chat/completions';
 
 if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'student') {
     http_response_code(403);
@@ -23,7 +23,6 @@ if (!$message) {
     exit();
 }
 
-// оценки ученика по темам
 $stmt = $conn->prepare("
     SELECT g.score, g.topic, g.date, g.grade_type, s.name as subject
     FROM grades g
@@ -35,7 +34,6 @@ $stmt->bind_param("i", $student_id);
 $stmt->execute();
 $grades = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// находим слабые темы (score < 65)
 $weakTopics = [];
 foreach ($grades as $g) {
     if ($g['score'] < 65 && $g['topic']) {
@@ -43,7 +41,6 @@ foreach ($grades as $g) {
     }
 }
 
-// средний балл
 $scores = array_column($grades, 'score');
 $avg = count($scores) > 0 ? round(array_sum($scores) / count($scores), 1) : 0;
 
@@ -64,7 +61,6 @@ $systemPrompt = "Ты личный AI-наставник школьника.
 
 
 
-// история чата из POST
 $history = json_decode($_POST['history'] ?? '[]', true);
 
 $messages = [['role' => 'system', 'content' => $systemPrompt]];

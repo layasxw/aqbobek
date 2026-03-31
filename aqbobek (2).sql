@@ -1,6 +1,6 @@
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
--- https://www.phpmyadmin.net/
+-- https:www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
 -- Время создания: Мар 30 2026 г., 19:51

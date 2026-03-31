@@ -51,7 +51,7 @@ $medals = ['🥇', '🥈', '🥉'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="refresh" content="120">
     <title>Aqbobek — Стенгазета</title>
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https:fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #6c5ce7;
@@ -471,7 +471,7 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
-// Автоскролл событий если их много
+ Автоскролл событий если их много
 const eventList = document.getElementById('eventList');
 if (eventList && eventList.children.length > 4) {
     let pos = 0;

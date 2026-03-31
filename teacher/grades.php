@@ -7,23 +7,19 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'teacher') {
     exit();
 }
 
-// создать новую колонку = добавить пустую запись с датой
 if (isset($_GET['new_col_type']) && isset($_GET['new_col_date'])) {
-    // просто редиректим обратно, колонка появится когда добавят первую оценку
     header("Location: grades.php");
     exit();
 }
 
 $teacher_id = $_SESSION['id'];
 
-// получаем subject_id учителя
 $stmt = $conn->prepare("SELECT subject_id FROM users WHERE id = ?");
 $stmt->bind_param("i", $teacher_id);
 $stmt->execute();
 $teacher = $stmt->get_result()->fetch_assoc();
 $subject_id = $teacher['subject_id'];
 
-// сохранить оценку
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_grade'])) {
     $grade_id = $_POST['grade_id'] ?? null;
     $student_id = $_POST['student_id'];
@@ -33,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_grade'])) {
     $date = $_POST['date'];
 
     if ($grade_id) {
-        // обновить существующую
         $stmt = $conn->prepare("
             UPDATE grades SET score=?, topic=?, date=?
             WHERE id=? AND recorded_by=?
@@ -41,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_grade'])) {
         $stmt->bind_param("issis", $score, $topic, $date, $grade_id, $teacher_id);
         $stmt->execute();
     } else {
-        // добавить новую
         $stmt = $conn->prepare("
             INSERT INTO grades (student_id, subject_id, score, grade_type, topic, recorded_by, date)
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -53,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_grade'])) {
     exit();
 }
 
-// удалить оценку
 if (isset($_GET['delete'])) {
     $grade_id = $_GET['delete'];
     $stmt = $conn->prepare("DELETE FROM grades WHERE id=? AND recorded_by=?");
@@ -63,7 +56,6 @@ if (isset($_GET['delete'])) {
     exit();
 }
 
-// все ученики
 $students = $conn->query("
     SELECT u.id, u.name, c.name as class_name
     FROM users u
@@ -72,7 +64,6 @@ $students = $conn->query("
     ORDER BY c.name, u.name
 ")->fetch_all(MYSQLI_ASSOC);
 
-// все оценки по предмету учителя
 $grades_raw = $conn->query("
     SELECT g.id, g.student_id, g.score, g.grade_type, g.topic, g.date
     FROM grades g
@@ -80,7 +71,6 @@ $grades_raw = $conn->query("
     ORDER BY g.date ASC
 ")->fetch_all(MYSQLI_ASSOC);
 
-// типы работ
 $grade_types = [];
 foreach ($grades_raw as $g) {
     $key = $g['grade_type'] . ' ' . $g['date'];
@@ -89,7 +79,6 @@ foreach ($grades_raw as $g) {
     }
 }
 
-// оценки в формате [student_id][type_date] = grade
 $grades_map = [];
 foreach ($grades_raw as $g) {
     $key = $g['grade_type'] . ' ' . $g['date'];
@@ -102,8 +91,8 @@ foreach ($grades_raw as $g) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aqbobek | Журнал</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https:cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https:fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
     <style>
         .journal-table { width:100%; border-collapse:collapse; }
@@ -369,7 +358,6 @@ function openAddColumn() {
 function addColumn() {
     const type = document.getElementById('col_type').value;
     const date = document.getElementById('col_date').value;
-    // редиректим с параметрами чтобы PHP создал колонку
     window.location.href = `?new_col_type=${type}&new_col_date=${date}`;
 }
 
@@ -377,7 +365,6 @@ function closeModal() {
     document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
 }
 
-// закрыть по клику вне модалки
 document.querySelectorAll('.modal').forEach(modal => {
     modal.addEventListener('click', function(e) {
         if (e.target === this) closeModal();
