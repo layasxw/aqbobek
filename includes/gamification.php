@@ -40,7 +40,6 @@ function aq_get_gamification(mysqli $conn, int $student_id): array {
 
     foreach ($goals as &$goal) {
         if ($goal['status'] === 'active' && $goal['current_avg'] >= $goal['target_score']) {
-             Обновляем статус
             $upd = $conn->prepare("UPDATE goals SET status='done' WHERE id=?");
             $upd->bind_param("i", $goal['id']);
             $upd->execute();
