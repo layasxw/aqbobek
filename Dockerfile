@@ -1,20 +1,13 @@
-FROM php:8.2-apache
+FROM php:8.2-cli
 
-# Оставляем только один MPM
-RUN a2dismod mpm_event || true
-RUN a2enmod mpm_prefork
-
-# PHP + MySQL
+# Устанавливаем расширения для MySQL
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Rewrite если нужен .htaccess
-RUN a2enmod rewrite
+# Рабочая папка
+WORKDIR /app
 
 # Копируем проект
-COPY . /var/www/html/
+COPY . /app
 
-# Права
-RUN chown -R www-data:www-data /var/www/html
-
-# Явно указываем порт Apache
-EXPOSE 80
+# Railway требует слушать $PORT
+CMD sh -c "php -S 0.0.0.0:${PORT:-8080} -t /app"
