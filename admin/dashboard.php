@@ -143,10 +143,10 @@ if (isset($_GET['delete_event'])) {
             <a href="#" class="nav-btn" data-target="section-news">
                 <i class="fas fa-newspaper"></i> Новости
             </a>
-            <a href="../schedule/schedule.js">
+            <a href="#" class="nav-btn" data-target="section-schedule">
                 <i class="fas fa-calendar-alt"></i> Расписание
             </a>
-            <a href="analytics.php">
+            <a href="analytics.php" class="nav-btn">
                 <i class="fas fa-chart-bar"></i> Аналитика
             </a>
             <div style="height:1px;background:rgba(255,255,255,0.1);margin:15px 0;"></div>
@@ -169,7 +169,6 @@ if (isset($_GET['delete_event'])) {
             <div class="date-now"><?= date('d F Y') ?></div>
         </header>
 
-        <!-- ГЛАВНЫЙ ДАШБОРД -->
         <section id="section-home" class="content-section active">
             <div class="dashboard-grid">
                 <div class="glass-card">
@@ -213,7 +212,6 @@ if (isset($_GET['delete_event'])) {
             </div>
         </section>
 
-        <!-- ГЛОБАЛЬНЫЙ РАДАР -->
         <section id="section-radar" class="content-section">
             <div class="sub-navigation">
                 <button class="sub-nav-btn active" data-sub="sub-by-subject">По предметам</button>
@@ -456,9 +454,155 @@ if (isset($_GET['delete_event'])) {
             </div>
         </section>
 
+        <section id="section-schedule" class="content-section">
+            <div class="glass-card full-width">
+                <h3>📅 Автогенерация расписания</h3>
+                <div style="margin-top:20px;display:flex;gap:15px;align-items:center;flex-wrap:wrap;">
+                    <div>
+                        <label style="color:var(--text-dim);font-size:0.85rem;">Фильтр по</label>
+                        <select id="filter-type" style="margin-left:10px;padding:8px 14px;border-radius:10px;background:var(--glass);border:1px solid var(--glass-border);color:#fff;">
+                            <option value="class">Класс</option>
+                            <option value="teacher">Учитель</option>
+                            <option value="room">Кабинет</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="filter-value" style="padding:8px 14px;border-radius:10px;background:var(--glass);border:1px solid var(--glass-border);color:#fff;"></select>
+                    </div>
+                    <button onclick="regenBtn" style="padding:8px 20px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;border:none;cursor:pointer;font-weight:600;">
+                        🔄 Перегенерировать
+                    </button>
+                </div>
+                <div id="schedule-container" style="margin-top:20px;overflow-x:auto;"></div>
+            </div>
+        </section>
+
     </main>
 </div>
 
 <script src="../script.js"></script>
+<script>
+// === ДАННЫЕ РАСПИСАНИЯ ===
+const schedData = <?php
+    $jsonPath = __DIR__ . '/../schedule/data.json';
+    echo file_exists($jsonPath) ? file_get_contents($jsonPath) : '{}';
+?>;
+
+const activities = schedData.activities || [];
+const timeslots  = schedData.timeslots  || [];
+const rooms      = schedData.rooms      || [];
+
+function canPlace(activity, slot, room, schedule) {
+    if (activity.requiredRoomType !== room.type) return false;
+    for (let e of schedule) {
+        if (e.timeSlotId === slot.id) {
+            const a = activities.find(a => a.id === e.activityId);
+            if (a.teacher === activity.teacher) return false;
+            if (a.classGroup === activity.classGroup) return false;
+            if (e.roomId === room.id) return false;
+        }
+    }
+    return true;
+}
+
+function scoreSlot(activity, slot) {
+    let score = 0;
+    if (["Математика","Физика","Химия"].includes(activity.subject) && slot.period < 3) score += 2;
+    if (activity.subject === "Физкультура" && slot.period > 3) score += 2;
+    if (activity.priority) score *= activity.priority;
+    return score;
+}
+
+function generateSchedule() {
+    const schedule = [];
+    for (let activity of activities) {
+        let bestSlot = null, bestRoom = null, bestScore = -1;
+        for (let slot of timeslots) {
+            for (let room of rooms) {
+                if (canPlace(activity, slot, room, schedule)) {
+                    const score = scoreSlot(activity, slot);
+                    if (score > bestScore) { bestScore = score; bestSlot = slot; bestRoom = room; }
+                }
+            }
+        }
+        if (bestSlot && bestRoom) {
+            schedule.push({ activityId: activity.id, timeSlotId: bestSlot.id, roomId: bestRoom.id });
+        }
+    }
+    return schedule;
+}
+
+let currentSchedule = generateSchedule();
+
+const dayNames = { Mon:'Пн', Tue:'Вт', Wed:'Ср', Thu:'Чт', Fri:'Пт' };
+
+function updateFilterValues() {
+    const type = document.getElementById('filter-type').value;
+    const sel = document.getElementById('filter-value');
+    sel.innerHTML = '';
+    let options = [];
+    if (type === 'class')   options = [...new Set(activities.map(a => a.classGroup))];
+    if (type === 'teacher') options = [...new Set(activities.map(a => a.teacher))];
+    if (type === 'room')    options = [...new Set(rooms.map(r => r.name))];
+    options.forEach(val => {
+        const o = document.createElement('option');
+        o.value = o.innerText = val;
+        sel.appendChild(o);
+    });
+}
+
+function renderSchedule() {
+    const type  = document.getElementById('filter-type').value;
+    const value = document.getElementById('filter-value').value;
+    const container = document.getElementById('schedule-container');
+
+    const entries = currentSchedule.filter(e => {
+        const act  = activities.find(a => a.id === e.activityId);
+        const room = rooms.find(r => r.id === e.roomId);
+        if (type === 'class')   return act.classGroup === value;
+        if (type === 'teacher') return act.teacher === value;
+        if (type === 'room')    return room.name === value;
+    });
+
+    if (!entries.length) { container.innerHTML = '<p style="color:var(--text-dim);margin-top:10px;">Нет данных</p>'; return; }
+
+    let html = '<table style="width:100%;border-collapse:collapse;">';
+    html += '<thead><tr>';
+    ['День','Пара','Предмет','Учитель','Класс','Кабинет'].forEach(h => {
+        html += `<th style="padding:10px;text-align:left;color:var(--text-dim);font-size:0.85rem;border-bottom:1px solid rgba(255,255,255,0.08);">${h}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    entries.sort((a,b) => a.timeSlotId - b.timeSlotId).forEach(entry => {
+        const act  = activities.find(a => a.id === entry.activityId);
+        const slot = timeslots.find(t => t.id === entry.timeSlotId);
+        const room = rooms.find(r => r.id === entry.roomId);
+        html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+            <td style="padding:10px;font-weight:600;">${dayNames[slot.day] || slot.day}</td>
+            <td style="padding:10px;color:var(--text-dim);">${slot.period}</td>
+            <td style="padding:10px;">${act.subject}</td>
+            <td style="padding:10px;color:var(--text-dim);">${act.teacher}</td>
+            <td style="padding:10px;"><span style="background:rgba(108,92,231,0.2);color:#a29bfe;padding:3px 10px;border-radius:8px;">${act.classGroup}</span></td>
+            <td style="padding:10px;color:var(--text-dim);">${room.name}</td>
+        </tr>`;
+    });
+
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+function regenerate() {
+    currentSchedule = generateSchedule();
+    renderSchedule();
+}
+
+
+document.getElementById('filter-type').addEventListener('change', () => { updateFilterValues(); renderSchedule(); });
+document.getElementById('filter-value').addEventListener('change', renderSchedule);
+updateFilterValues();
+renderSchedule();
+document.getElementById('regenBtn').addEventListener('click', regenerate);
+
+</script>
 </body>
 </html>

@@ -12,8 +12,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password = trim($_POST['password']);
     $confirmPassword = trim($_POST['confirmPassword']);
     $role = $_POST['role'];
-    $class_id = $_POST['class_id'] ?? null;
-
+    $class_id = (!empty($_POST['class_id'])) ? (int)$_POST['class_id'] : null;
+    
     if ($password !== $confirmPassword) {
         $error = "Пароли не совпадают";
     } else {

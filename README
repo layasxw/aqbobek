@@ -1,0 +1,86 @@
+# Aqbobek Lyceum — Школьный портал
+
+Многоролевой школьный портал с AI-аналитикой успеваемости и автогенерацией расписания.
+
+**Live demo:** [aqbobek-production.up.railway.app/index.php](https://aqbobek-production.up.railway.app/index.php)
+
+---
+
+## Стек
+
+- **Backend:** PHP 8, MySQL
+- **AI модуль:** Groq API (LLaMA 3.3 70B) + собственные алгоритмы (линейная регрессия, z-score)
+- **Frontend:** HTML, CSS, JavaScript, Chart.js
+- **Deploy:** Railway
+
+---
+
+## Роли и тестовые аккаунты
+
+| Роль | Email | Пароль |
+|------|-------|--------|
+| Ученик | student@school.kz | password |
+| Учитель | teacher@school.kz | password |
+| Родитель | parent@school.kz | password |
+| Администратор | admin@school.kz | password |
+
+---
+
+## Локальный запуск (XAMPP)
+
+### 1. Требования
+- XAMPP (PHP 8.x + MySQL)
+- Git
+
+### 2. Установка
+
+```bash
+git clone https://github.com/layasxw/aqbobek.git
+```
+
+Скопировать папку `aqbobek` в `C:/xampp/htdocs/`
+
+### 3. База данных
+
+1. Запустить XAMPP → Apache + MySQL
+2. Открыть [phpMyAdmin](http://localhost/phpmyadmin)
+3. Создать базу данных `aqbobek`
+4. Импортировать файл `aqbobek.sql` (Database → Import)
+
+### 4. Переменные окружения
+
+Создать файл `.env` в корне проекта:
+
+```
+GROQ_API_KEY=апиключ
+```
+
+Получить ключ бесплатно: [console.groq.com](https://console.groq.com)
+
+> Без ключа AI-функции не работают, остальной функционал доступен полностью.
+
+### 5. Запуск
+
+Открыть в браузере: [http://localhost/aqbobek/index.php]
+
+
+```
+
+---
+
+## Структура проекта
+
+```
+aqbobek/
+├── admin/          — дашборд администратора
+├── ai/             — AI модуль (предикция, граф знаний, отчёты)
+├── api/            — Mock BilimClass API
+├── config/         — подключение к БД
+├── includes/       — геймификация, виджет расписания
+├── parent/         — дашборд родителя
+├── public/         — авторизация, kiosk mode
+├── schedule/       — алгоритм генерации расписания
+├── student/        — дашборд ученика
+├── teacher/        — дашборд учителя
+└── aqbobek.sql     — дамп базы данных
+```
