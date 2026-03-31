@@ -1,0 +1,1 @@
+Get-Content .\aqbobek.sql | mysql -h mysql.railway.internal -P 3306 -u root -p railway

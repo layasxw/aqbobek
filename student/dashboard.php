@@ -455,7 +455,6 @@ foreach ($leaderboard as $i => $row) {
                             ['icon'=>'📈','name'=>'Отличник','desc'=>'Средний балл выше 85'],
                             ['icon'=>'🎯','name'=>'Цель достигнута','desc'=>'Закрыть учебную цель'],
                         ];
-                         Полученные ачивки
                         $stmt_ach = $conn->prepare("SELECT title FROM achievements WHERE student_id=?");
                         $stmt_ach->bind_param("i", $id);
                         $stmt_ach->execute();
