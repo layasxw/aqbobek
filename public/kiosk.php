@@ -1,7 +1,6 @@
 <?php
 require_once '../config/db.php';
 
-// Топ-3 ученика по среднему баллу
 $top_students = $conn->query("
     SELECT u.name, c.name as class_name, ROUND(AVG(g.score),1) as avg_score
     FROM users u
@@ -13,20 +12,17 @@ $top_students = $conn->query("
     LIMIT 3
 ")->fetch_all(MYSQLI_ASSOC);
 
-// Ближайшие события
 $events = $conn->query("
     SELECT title, event_date, description FROM events
     WHERE event_date >= NOW()
     ORDER BY event_date ASC LIMIT 6
 ")->fetch_all(MYSQLI_ASSOC);
 
-// Последние новости
 $news = $conn->query("
     SELECT title, body FROM news
     ORDER BY created_at DESC LIMIT 5
 ")->fetch_all(MYSQLI_ASSOC);
 
-// Последние достижения
 $achievements = $conn->query("
     SELECT a.title, u.name as student_name
     FROM achievements a
@@ -34,7 +30,6 @@ $achievements = $conn->query("
     ORDER BY a.date DESC LIMIT 5
 ")->fetch_all(MYSQLI_ASSOC);
 
-// Ticker строка
 $ticker_parts = [];
 foreach ($events as $e) {
     $ticker_parts[] = '📅 ' . $e['title'] . ' — ' . date('d M', strtotime($e['event_date']));
@@ -79,10 +74,8 @@ $medals = ['🥇', '🥈', '🥉'];
             display: flex;
             flex-direction: column;
             user-select: none;
-            cursor: none;
         }
 
-        /* Animated background */
         .bg-layer {
             position: fixed; inset: 0; z-index: 0;
             background:
@@ -96,7 +89,6 @@ $medals = ['🥇', '🥈', '🥉'];
             100% { opacity: 1;   transform: scale(1.05); }
         }
 
-        /* Grid stars */
         .stars {
             position: fixed; inset: 0; z-index: 0;
             background-image:
@@ -111,7 +103,6 @@ $medals = ['🥇', '🥈', '🥉'];
 
         .content { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
 
-        /* HEADER */
         .header {
             display: flex;
             align-items: center;
@@ -162,7 +153,6 @@ $medals = ['🥇', '🥈', '🥉'];
         }
         #date-str { font-size: 0.85rem; color: rgba(255,255,255,0.5); }
 
-        /* MAIN GRID */
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -172,7 +162,6 @@ $medals = ['🥇', '🥈', '🥉'];
             overflow: hidden;
         }
 
-        /* CARDS */
         .card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -206,7 +195,6 @@ $medals = ['🥇', '🥈', '🥉'];
         }
         .card-icon { font-size: 1.3rem; }
 
-        /* LEADERBOARD */
         .leader-item {
             display: flex;
             align-items: center;
@@ -249,7 +237,6 @@ $medals = ['🥇', '🥈', '🥉'];
         .leader-item:nth-child(2) .score-bar { background: rgba(255,255,255,0.4); }
         .leader-item:nth-child(3) .score-bar { background: #cd7f32; }
 
-        /* EVENTS */
         .event-list { display: flex; flex-direction: column; gap: 10px; flex: 1; overflow: hidden; }
 
         .event-item {
@@ -278,7 +265,6 @@ $medals = ['🥇', '🥈', '🥉'];
         .event-title { font-size: 0.95rem; font-weight: 600; }
         .event-desc  { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
 
-        /* ACHIEVEMENTS */
         .achieve-list { display: flex; flex-direction: column; gap: 10px; flex: 1; overflow: hidden; }
 
         .achieve-item {
@@ -298,7 +284,6 @@ $medals = ['🥇', '🥈', '🥉'];
         .achieve-title { font-size: 0.9rem; font-weight: 600; line-height: 1.3; }
         .achieve-name  { font-size: 0.75rem; color: var(--accent); margin-top: 3px; font-weight: 600; }
 
-        /* TICKER */
         .ticker-wrap {
             height: 60px;
             background: linear-gradient(90deg, var(--primary), var(--secondary), var(--primary));
@@ -330,7 +315,6 @@ $medals = ['🥇', '🥈', '🥉'];
             100% { transform: translateX(-50%); }
         }
 
-        /* Scan line effect */
         .scanlines {
             position: fixed; inset: 0; z-index: 2;
             pointer-events: none;
@@ -343,7 +327,6 @@ $medals = ['🥇', '🥈', '🥉'];
             );
         }
 
-        /* QR / hint */
         .hint {
             position: fixed; bottom: 70px; right: 30px;
             background: rgba(0,0,0,0.6); border: 1px solid var(--border);
@@ -362,7 +345,6 @@ $medals = ['🥇', '🥈', '🥉'];
 
 <div class="content">
 
-    <!-- HEADER -->
     <header class="header">
         <div class="logo">⚡ AQBOBEK</div>
         <div style="text-align:center;">
@@ -384,10 +366,8 @@ $medals = ['🥇', '🥈', '🥉'];
         </div>
     </header>
 
-    <!-- MAIN GRID -->
     <div class="main-grid">
 
-        <!-- ЛИДЕРБОРД -->
         <div class="card card-leaders">
             <div class="card-title">
                 <span class="card-icon">👑</span>
@@ -411,7 +391,6 @@ $medals = ['🥇', '🥈', '🥉'];
             <?php endif; ?>
         </div>
 
-        <!-- СОБЫТИЯ -->
         <div class="card card-events">
             <div class="card-title">
                 <span class="card-icon">📅</span>
@@ -440,7 +419,6 @@ $medals = ['🥇', '🥈', '🥉'];
             </div>
         </div>
 
-        <!-- ДОСТИЖЕНИЯ -->
         <div class="card card-achieve">
             <div class="card-title">
                 <span class="card-icon">🏆</span>
@@ -466,7 +444,6 @@ $medals = ['🥇', '🥈', '🥉'];
 
     </div>
 
-    <!-- TICKER -->
     <div class="ticker-wrap">
         <div class="ticker-inner">
             <span><?= htmlspecialchars($ticker_text) ?></span>

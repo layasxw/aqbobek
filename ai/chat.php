@@ -1,9 +1,13 @@
 <?php
+error_reporting(0);
+ini_set('display_errors', 0);
 session_start();
 require_once '../config/db.php';
 require_once __DIR__ . '/../config.php';
 
 $apiKey = $_ENV['GROQ_API_KEY'] ?? getenv('GROQ_API_KEY');
+
+$url = 'https://api.groq.com/openai/v1/chat/completions';
 
 if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'student') {
     http_response_code(403);

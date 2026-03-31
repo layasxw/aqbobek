@@ -155,7 +155,7 @@ if (isset($_GET['delete_event'])) {
             <a href="#" class="nav-btn" data-target="section-news">
                 <i class="fas fa-newspaper"></i> Новости
             </a>
-            <a href="schedule.php">
+            <a href="../schedule/schedule.js">
                 <i class="fas fa-calendar-alt"></i> Расписание
             </a>
             <a href="analytics.php">

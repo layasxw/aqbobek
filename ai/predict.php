@@ -1,9 +1,13 @@
 <?php
+error_reporting(0);
+ini_set('display_errors', 0);
 session_start();
 require_once '../config/db.php';
-require_once '../config.php';
+require_once __DIR__ . '/../config.php';
+
 
 $apiKey = $_ENV['GROQ_API_KEY'] ?? getenv('GROQ_API_KEY');
+$url = 'https://api.groq.com/openai/v1/chat/completions';
 
 if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'student') {
     http_response_code(403);
@@ -87,14 +91,17 @@ foreach ($scores as $s) {
 $std_dev = $n > 1 ? sqrt($variance / ($n - 1)) : 10;
 
 // z-score для порога 50
-$z = $std_dev > 0 ? (50 - $predicted) / $std_dev : 0;
-
+$z = $std_dev > 0 ? ($predicted - 50) / $std_dev : 3;
+$fail_prob = round((1 - normalCDF($z)) * 100);
+$fail_prob = max(0, min(99, $fail_prob));
 // Простая аппроксимация CDF нормального распределения
 function normalCDF(float $z): float {
-    return 0.5 * erfc(-$z / sqrt(2));
+    $t = 1.0 / (1.0 + 0.2316419 * abs($z));
+    $d = 0.3989423 * exp(-$z * $z / 2);
+    $p = $d * $t * (0.3193815 + $t * (-0.3565638 + $t * (1.7814779 + $t * (-1.8212560 + $t * 1.3302744))));
+    return $z > 0 ? 1 - $p : $p;
 }
-$fail_prob = round(normalCDF(-$z) * 100); // вероятность что балл < 50
-$fail_prob = max(0, min(99, $fail_prob));
+
 
 // Слабые темы (score < 60)
 $weak_topics = [];

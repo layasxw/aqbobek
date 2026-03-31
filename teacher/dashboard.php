@@ -10,7 +10,6 @@ if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'teacher') {
 
 $teacher_id = $_SESSION['id'];
 
-// --- КЛАССЫ учителя ---
 $stmt = $conn->prepare("
     SELECT c.id as class_id, c.name as class_name
     FROM teacher_classes tc
@@ -21,7 +20,6 @@ $stmt->bind_param("i", $teacher_id);
 $stmt->execute();
 $classes = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// --- ВСЕ УЧЕНИКИ ---
 $stmt = $conn->prepare("
     SELECT u.id, u.name, u.class_id, c.name as class_name,
            AVG(g.score) as avg_score
@@ -39,33 +37,27 @@ $stmt->bind_param("i", $teacher_id);
 $stmt->execute();
 $students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// --- ЗОНА РИСКА (среднее < 60) ---
 $risk_students = array_filter($students, fn($s) => $s['avg_score'] < 60 || $s['avg_score'] === null);
 
-// --- ОБЩАЯ СТАТИСТИКА ---
 $total_students = count($students);
 $total_risk = count($risk_students);
 $school_avg = $total_students > 0
     ? round(array_sum(array_column($students, 'avg_score')) / $total_students, 1)
     : 0;
 
-// --- ВСЕ ОЦЕНКИ для выставления ---
 $subjects = $conn->query("SELECT id, name FROM subjects")->fetch_all(MYSQLI_ASSOC);
 
-// --- СОБЫТИЯ ---
 $events = $conn->query("
     SELECT title, event_date FROM events
     WHERE event_date >= CURDATE()
     ORDER BY event_date ASC LIMIT 5
 ")->fetch_all(MYSQLI_ASSOC);
 
-// --- НОВОСТИ ---
 $news = $conn->query("
     SELECT title, body, created_at FROM news
     ORDER BY created_at DESC LIMIT 5
 ")->fetch_all(MYSQLI_ASSOC);
 
-// --- ДОБАВИТЬ ОЦЕНКУ ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_grade'])) {
     $student_id = $_POST['student_id'];
     $subject_id = $_POST['subject_id'];
@@ -83,7 +75,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_grade'])) {
     $success = "Оценка добавлена!";
 }
 
-// --- ДОБАВИТЬ ДОСТИЖЕНИЕ ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_achievement'])) {
     $student_id = $_POST['student_id'];
     $title = $_POST['achievement_title'];
